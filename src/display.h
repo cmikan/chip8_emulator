@@ -6,6 +6,6 @@
 int display_init(SDL_Window** window);
 int display_delete(SDL_Window* window);
 
-void *display_loop();
+void *display_loop(void *arg);
 
 #endif //DISPLAY_H_

@@ -32,7 +32,7 @@ int display_delete(SDL_Window* window)
     return 0;
 }
 
-void *display_loop()
+void *display_loop(void *arg)
 {
     SDL_Event event;
     bool quit = false;
