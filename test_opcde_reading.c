@@ -182,7 +182,48 @@ int main()
             }
             case 0XF:
             {
-                printf("Todo\n");
+                uint4_t X = (opcode & 0x0F00) >> 8;
+                uint8_t instruction = opcode & 0x00FF;
+
+                switch (instruction)
+                {
+                    case 0x07:
+                    {
+                        break;
+                    }
+                    case 0x0A:
+                    {
+                        break;
+                    }
+                    case 0x15:
+                    {
+                        break;
+                    }
+                    case 0x18:
+                    {
+                        break;
+                    }
+                    case 0x1E:
+                    {
+                        break;
+                    }
+                    case 0x29:
+                    {
+                        break;
+                    }
+                    case 0x33:
+                    {
+                        break;
+                    }
+                    case 0x55:
+                    {
+                        break;
+                    }
+                    case 0x65:
+                    {
+                        break;
+                    }
+                }
                 break;
             }
             default:
