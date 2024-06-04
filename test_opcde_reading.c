@@ -2,9 +2,12 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define MEMORY_SIZE 4096
 #define MS_PER_FRAME 500 // 60hz
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
 
 int main()
 {
@@ -20,6 +23,8 @@ int main()
 
     uint8_t V[16]; // Registers
     uint16_t I;
+
+    bool display_memory[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 
     int bytes_read = fread(chip_ram + 0x200, 1, MEMORY_SIZE - 0x200, file);
     fclose(file);
@@ -43,11 +48,18 @@ int main()
             {
                 if (opcode == 0x00E0)
                 {
-                    printf("Clear the display\n");
+                    for (int i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++)
+                    {
+                        display_memory[i] = false;
+                    }
                 }
                 else if (opcode == 0x00EE)
                 {
                     printf("Return from a subroutine\n");
+                }
+                else
+                {
+                    pc += 2;
                 }
                 break;
             }
@@ -63,12 +75,26 @@ int main()
             }
             case 0X3:
             {
-                printf("Skip next instruction if V%1X = %2X\n", (opcode & 0x0F00) >> 8, (opcode & 0x00FF));
+                if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
+                {
+                    pc += 4;
+                }
+                else
+                {
+                    pc += 2;
+                }
                 break;
             }
             case 0X4:
             {
-                printf("Skip next instruction if V%1X != %2X\n", (opcode & 0x0F00) >> 8, (opcode & 0x00FF));
+                if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF))
+                {
+                    pc += 4;
+                }
+                else
+                {
+                    pc += 2;
+                }
                 break;
             }
             case 0X5:
@@ -76,7 +102,14 @@ int main()
                 uint8_t X, Y;
                 X = (opcode & 0x0F00) >> 8;
                 Y = (opcode & 0x00F0) >> 4;
-                printf("Skip next instruction if V%1X = V%1X\n", X, Y);
+                if (V[X] == V[Y])
+                {
+                    pc += 4;
+                }
+                else
+                {
+                    pc += 2;
+                }
                 break;
             }
             case 0X6:
@@ -87,7 +120,8 @@ int main()
             }
             case 0X7:
             {
-                printf("Set V%1X = V%1X + %2X\n", (opcode & 0x0F00) >> 8, (opcode & 0x0F00) >> 8, (opcode & 0x00FF));
+                V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] + (opcode & 0x00FF);
+                pc += 2;
                 break;
             }
             case 0X8:
@@ -98,34 +132,38 @@ int main()
                 operation = (opcode & 0x000F);
                 switch (operation)
                 {
-                    case 0x0:
+                    case 0x0: // LD
                     {
-                        printf("LD V%1X V%1X\n", X, Y);
+                        V[X] = V[Y];
                         break;
                     }
-                    case 0x1:
+                    case 0x1: // OR
                     {
-                        printf("OR V%1X V%1X\n", X, Y);
+                        V[X] = V[X] | V[Y];
                         break;
                     }
-                    case 0x2:
+                    case 0x2: // AND
                     {
-                        printf("AND V%1X V%1X\n", X, Y);
+                        V[X] = V[X] & V[Y];
                         break;
                     }
-                    case 0x3:
+                    case 0x3: // XOR
                     {
-                        printf("XOR V%1X V%1X\n", X, Y);
+                        V[X] = V[X] ^ V[Y];
                         break;
                     }
-                    case 0x4:
+                    case 0x4: // ADD
                     {
-                        printf("ADD V%1X V%1X\n", X, Y);
+                        uint16_t result = V[X] + V[Y];
+
+                        V[0xF] = (result > 255) ? 1 : 0;
+                        V[X] = result & 0xFF;
                         break;
                     }
-                    case 0x5:
+                    case 0x5: // SUB
                     {
-                        printf("SUB V%1X V%1X\n", X, Y);
+                        V[0xF] = (V[X] > V[Y]) ? 1 : 0;
+                        V[X] = V[X] - V[Y];
                         break;
                     }
                     case 0x6:
@@ -149,7 +187,7 @@ int main()
                         break;
                     }
                 }
-                
+                pc += 2;
                 break;
             }
             case 0X9:
