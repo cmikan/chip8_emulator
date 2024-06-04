@@ -1,17 +1,45 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
+
+#define MEMORY_SIZE 4096
+#define MS_PER_FRAME 16 // 60hz
 
 int main()
 {
     FILE *file = NULL;
 
     file = fopen("test_opcode.ch8", "rb");
-    unsigned char message[4096];
+    unsigned char chip_ram[MEMORY_SIZE];
 
+    for (int i = 0; i < MEMORY_SIZE; i++)
+    {
+        chip_ram[i] = 0;
+    }
 
-    int bytes_read = fread(message, 1, 4096, file);
+    int bytes_read = fread(chip_ram + 0x200, 1, MEMORY_SIZE - 0x200, file);
     fclose(file);
-    
+
+    uint16_t pc = 0x200; // Program counter
+
+    struct timeval start_time, end_time;
+    long int elapsed_ms;
+    int quit = 0;
+
+    while (!quit)
+    {
+        gettimeofday(&start_time, NULL);
+        uint16_t opcode = chip_ram[pc] << 8 | chip_ram[i+1];
+
+
+        gettimeofday(&end_time, NULL);
+        elapsed_ms = (end_time.tv_sec - start_time.tv_sec) * 1000 + (end_time.tv_usec - start_time.tv_usec) / 1000;
+
+        if (elapsed_ms < MS_PER_FRAME) {
+            usleep((MS_PER_FRAME - elapsed_ms) * 1000);
+        }
+    }
+    /*
     for (int i = 0; i < bytes_read; i += 2)
     {
         uint16_t opcode = message[i] << 8 | message[i+1];
@@ -233,7 +261,7 @@ int main()
             }   
         }
     }
-    printf("\n");
+    printf("\n");*/
 
     return 0;
 }
