@@ -166,19 +166,36 @@ int main()
                         V[X] = V[X] - V[Y];
                         break;
                     }
-                    case 0x6:
+                    case 0x6: // SHR
                     {
-                        printf("SHR V%1X V%1X\n", X, Y);
+                        if ((V[X] & 1) == 1)
+                        {
+                            V[0xF] = 1;
+                        }
+                        else
+                        {
+                            V[0xF] = 0;
+                        }
+                        V[X] /= 2;
                         break;
                     }
-                    case 0x7:
+                    case 0x7: // SUBN
                     {
-                        printf("SUBN V%1X V%1X\n", X, Y);
+                        V[0xF] = (V[Y] > V[X]) ? 1 : 0;
+                        V[X] = V[Y] - V[X];
                         break;
                     }
-                    case 0xE:
+                    case 0xE: // SHL
                     {
-                        printf("SHL V%1X V%1X\n", X, Y);
+                        if (((V[X] >> 7) & 1) == 1)
+                        {
+                            V[0xF] = 1;
+                        }
+                        else
+                        {
+                            V[0xF] = 0;
+                        }
+                        V[X] /= 2;
                         break;
                     }
                     default:
@@ -195,7 +212,15 @@ int main()
                 uint8_t X, Y;
                 X = (opcode & 0x0F00) >> 8;
                 Y = (opcode & 0x00F0) >> 4;
-                printf("Skip next instruction if V%1X != V%1X\n", X, Y);
+                if (V[X] != V[Y])
+                {
+                    pc += 4;
+                }
+                else
+                {
+                    pc += 2;
+                }
+                break;
                 break;
             }
             case 0XA:
@@ -206,13 +231,12 @@ int main()
             }
             case 0XB:
             {
-                printf("Jump to %3X\n + V0", (opcode & 0x0FFF));
+                pc = (opcode & 0x0FFF) + V[0]
                 break;
             }
             case 0XC:
             {
                 printf("Set V%1X = random bytes AND %2X\n", (opcode & 0x0F00) >> 8, (opcode & 0x00FF));
-                break;
                 break;
             }
             case 0XD:
