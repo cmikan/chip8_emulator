@@ -2,9 +2,10 @@
 #define DISPLAY_H_
 
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 
-int display_init(SDL_Window** window);
-int display_delete(SDL_Window* window);
+void *display_init(bool display[]);
+int display_delete(void* window);
 
 void *display_loop(void *arg);
 

@@ -1,5 +1,3 @@
-#include <SDL2/SDL.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,24 +21,22 @@ int main(int argc, char **argv)
         return 1;
     }
 
-
     chip8 *chip8 = chip8_init();
-    /*
 
-    SDL_Window* display_window;
-    display_init(&display_window);
+    void *display = display_init((void*)(&(chip8->display))); // Create a thread
+    if (display == NULL)
+    {
+        return 1;
+    }
 
-    pthread_t display_thread;
-    pthread_create(&display_thread, NULL, display_loop, (void*)(memory + MEMORY_SIZE - 256)); // Pointer to the beginning of the display zone
+    // Do opcode stuff here
 
-    pthread_join (display_thread, 0);
-    display_delete(display_window);
-    free(memory);*/
-
+    display_delete(display); // Join the previously created thread
     free(chip8);
 
     return 0;
 }
+
 
 /**
  * Check if the file extension is a ch8.

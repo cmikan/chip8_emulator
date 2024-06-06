@@ -1,20 +1,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "constant.h"
 
-typedef struct chip8
-{
-    uint8_t ram[MEMORY_SIZE];
-    uint8_t V[16];
-    uint16_t I;
-    uint8_t timer_register;
-    uint8_t delay_register;
-    uint16_t pc; // Program counter
-    uint8_t sp; // Stack pointer
-    uint16_t stack[16];
-    bool display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
-} chip8;
+#include "chip8_utils.h"
+#include "constant.h"
 
 chip8 *chip8_init()
 {
