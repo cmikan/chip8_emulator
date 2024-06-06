@@ -29,7 +29,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    chip8_load_rom(chip8, argv[1]);
+    if (chip8_load_rom(chip8, argv[1]))
+    {
+        return 1;
+    }
 
     display_delete(display); // Join the previously created thread
     free(chip8);

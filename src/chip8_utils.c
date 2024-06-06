@@ -32,10 +32,23 @@ chip8 *chip8_init()
     return return_value;
 }
 
-void chip8_load_rom(chip8* chip8, const char* filename)
+int chip8_load_rom(chip8* chip8, const char* filename)
 {
     FILE *file = NULL;
-    file = fopen("test_opcode.ch8", "rb");
-    fread(chip8->ram + 0x200, 1, MEMORY_SIZE - 0x200, file);
+    file = fopen(filename, "rb");
+    if (file == NULL)
+    {
+        fprintf(stderr, "Error: File doesn't exist.\n");
+        return 1;
+    }
+
+    int bytes_read = fread(chip8->ram + 0x200, 1, MEMORY_SIZE - 0x200, file);
+    if (bytes_read > MEMORY_SIZE - 0x200)
+    {
+        fprintf(stderr, "Error: File is too large.\n");
+        return 1;
+    }
+
     fclose(file);
+    return 0;
 }
