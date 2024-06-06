@@ -2,8 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define PIXEL_SIZE 16
-#define REFRESH_RATE 60
+#include "constant.h"
 
 #define DELAY 1000 / REFRESH_RATE
 

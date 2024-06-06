@@ -20,7 +20,7 @@ $(BUILDDIR):
 	@echo "$(GREEN)Create build$(GREEN) directory$(NC)"
 	@mkdir -p $@
 
-$(EXE): $(BUILDDIR)/display.o $(BUILDDIR)/main.o
+$(EXE): $(BUILDDIR)/display.o $(BUILDDIR)/chip8.o $(BUILDDIR)/chip8_utils.o
 	@echo "$(YELLOW)Compiling $(MAGENTA)$(notdir $@)$(NC)"
 	@$(CC) $(CFLAGS) -o $@ $^ $(shell sdl2-config --cflags --libs) -lpthread
 

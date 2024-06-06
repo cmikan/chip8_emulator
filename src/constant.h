@@ -1,0 +1,10 @@
+#ifndef CONSTANT_H_
+#define CONSTANT_H_
+
+#define MEMORY_SIZE 4096
+#define PIXEL_SIZE 16
+#define REFRESH_RATE 60
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
+
+#endif // CONSTANT_H_

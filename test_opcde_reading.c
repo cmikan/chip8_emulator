@@ -9,8 +9,12 @@
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s file.ch8", argv[0]);
+    }
     FILE *file = NULL;
 
     file = fopen("test_opcode.ch8", "rb");
@@ -322,11 +326,6 @@ int main()
             usleep((MS_PER_FRAME - elapsed_ms) * 1000);
         }
     }
-    /*
-    for (int i = 0; i < bytes_read; i += 2)
-    {
-        uint16_t opcode = message[i] << 8 | message[i+1];
-        */
 
     return 0;
 }
