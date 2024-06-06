@@ -26,6 +26,7 @@ chip8 *chip8_init()
     {
         return_value->display[i] = 0;
     }
+    return_value->display[1000] = 1;
     return_value->timer_register = 0;
     return_value->delay_register = 0;
     return_value->pc = 0x200;

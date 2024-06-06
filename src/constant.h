@@ -8,4 +8,7 @@
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
+#define FOREGROUND_COLOR 255, 255, 0
+#define BACKGROUND_COLOR 204, 102, 0
+
 #endif // CONSTANT_H_

@@ -41,9 +41,9 @@ void *display_loop(void *arg)
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
+        SDL_SetRenderDrawColor(renderer, BACKGROUND_COLOR, 1);
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer, 1, 1, 1, 1);
+        SDL_SetRenderDrawColor(renderer, FOREGROUND_COLOR, 1);
 
         for (int y = 0; y < DISPLAY_HEIGHT; ++y)
         {
