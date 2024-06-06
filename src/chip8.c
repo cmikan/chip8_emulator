@@ -22,8 +22,9 @@ int main(int argc, char **argv)
     }
 
     chip8 *chip8 = chip8_init();
+    bool quit = false;
 
-    void *display = display_init((void*)(&(chip8->display))); // Create a thread
+    void *display = display_init(chip8->display, &quit); // Create a thread
     if (display == NULL)
     {
         return 1;
@@ -34,8 +35,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    chip8_loop(chip8);
-
+    chip8_loop(chip8, &quit);
     display_delete(display); // Join the previously created thread
     free(chip8);
 

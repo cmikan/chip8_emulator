@@ -55,17 +55,16 @@ int chip8_load_rom(chip8* chip8, const char* filename)
     return 0;
 }
 
-void chip8_loop(chip8* chip8)
+void chip8_loop(chip8* chip8, bool *quit)
 {
     struct timeval start_time, end_time;
     long int elapsed_ms;
-    bool quit = false;
 
-    while (!quit)
+    while (!(*quit))
     {
         gettimeofday(&start_time, NULL);
 
-        printf("Test\n");
+        //printf("Test\n");
 
         gettimeofday(&end_time, NULL);
         elapsed_ms = (end_time.tv_sec - start_time.tv_sec) * 1000 + (end_time.tv_usec - start_time.tv_usec) / 1000;

@@ -11,11 +11,20 @@ typedef struct intern_display
     pthread_t thread;
 } intern_display;
 
+typedef struct intern_loop
+{
+    bool *display;
+    bool *quit;
+} intern_loop;
+
 void *display_loop(void *arg)
 {
     SDL_Event event;
-    bool quit = false;
-    while(!quit)
+    intern_loop *intern = (intern_loop*)arg;
+    bool *quit = intern->quit;
+    bool *display = intern->display;
+    //free(intern);
+    while(!(*quit))
     {
         while(SDL_PollEvent(&event))
         {
@@ -23,7 +32,7 @@ void *display_loop(void *arg)
             {
                 case SDL_QUIT:
                 {
-                    quit = true;
+                    (*quit) = true;
                 }
             }
         }
@@ -32,7 +41,7 @@ void *display_loop(void *arg)
     return (void*) 0;
 }
 
-void *display_init(bool display[])
+void *display_init(bool display[], bool* quit)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -49,7 +58,11 @@ void *display_init(bool display[])
         return NULL;
     }
 
-    pthread_create(&(return_value->thread), NULL, display_loop, (void*)(&display));
+    intern_loop *args = (intern_loop*)malloc(sizeof(intern_loop));
+    args->display = display;
+    args->quit = quit;
+
+    pthread_create(&(return_value->thread), NULL, display_loop, (void*)(args));
 
     return (void*)return_value;
 }

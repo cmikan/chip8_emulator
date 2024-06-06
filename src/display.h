@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-void *display_init(bool display[]);
+void *display_init(bool display[], bool* quit);
 int display_delete(void* window);
 
 void *display_loop(void *arg);
