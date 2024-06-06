@@ -11,4 +11,6 @@
 #define FOREGROUND_COLOR 255, 255, 0
 #define BACKGROUND_COLOR 204, 102, 0
 
+#define TONE 440
+
 #endif // CONSTANT_H_

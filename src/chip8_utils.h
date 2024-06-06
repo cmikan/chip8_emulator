@@ -10,8 +10,8 @@ typedef struct chip8
     uint8_t ram[MEMORY_SIZE];
     uint8_t V[16];
     uint16_t I;
-    uint8_t timer_register;
-    uint8_t delay_register;
+    uint8_t sound_timer;
+    uint8_t delay_timer;
     uint16_t pc; // Program counter
     uint8_t sp; // Stack pointer
     uint16_t stack[16];

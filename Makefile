@@ -22,9 +22,13 @@ $(BUILDDIR):
 
 $(EXE): $(BUILDDIR)/display.o $(BUILDDIR)/chip8.o $(BUILDDIR)/chip8_utils.o
 	@echo "$(YELLOW)Compiling $(MAGENTA)$(notdir $@)$(NC)"
-	@$(CC) $(CFLAGS) -o $@ $^ $(shell sdl2-config --cflags --libs) -lpthread
+	@$(CC) $(CFLAGS) -o $@ $^ $(shell sdl2-config --cflags --libs) -lpthread -lm
 
 $(BUILDDIR)/display.o: $(SRCDIR)/display.c | $(BUILDDIR)
+	@echo "$(YELLOW)Compiling $(BLUE)$(notdir $@)$(NC)"
+	@$(CC) $(CFLAGS) -c -o $@ $^ $(shell sdl2-config --cflags --libs)
+
+$(BUILDDIR)/chip8_utils.o: $(SRCDIR)/chip8_utils.c | $(BUILDDIR)
 	@echo "$(YELLOW)Compiling $(BLUE)$(notdir $@)$(NC)"
 	@$(CC) $(CFLAGS) -c -o $@ $^ $(shell sdl2-config --cflags --libs)
 

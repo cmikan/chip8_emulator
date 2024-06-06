@@ -5,6 +5,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>
+#include <SDL2/SDL.h>
 
 #include "chip8_utils.h"
 #include "constant.h"
@@ -27,8 +29,8 @@ chip8 *chip8_init()
     {
         return_value->display[i] = 0;
     }
-    return_value->timer_register = 0;
-    return_value->delay_register = 0;
+    return_value->delay_timer = 0;
+    return_value->sound_timer = 0;
     return_value->pc = 0x200;
     return_value->sp = 0;
 
@@ -60,7 +62,7 @@ int chip8_load_rom(chip8* chip8, const char* filename)
 
 void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
 {
-    printf("%4X\n", opcode);
+    //printf("%4X\n", opcode);
     switch ((opcode & 0xF000) >> 12) // First nibble
     {
         case 0X0:
@@ -276,7 +278,7 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < 8; j++)
-                { // y * DISPLAY_WIDTH + x
+                {
                     chip8->display[((chip8->V[Y] + i) % 32) * DISPLAY_WIDTH + ((chip8->V[X] + j) % 64)] ^= (chip8->ram[chip8->I + 2 * i] >> (7 - j)) & 0x01;
                 }
             }
@@ -318,13 +320,141 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
             }
             break;
         }
+        case 0XF:
+        {
+            uint8_t X = (opcode & 0x0F00) >> 8;
+            uint8_t instruction = opcode & 0x00FF;
+            switch (instruction)
+            {
+                case 0x07: // Set Vx = delay timer
+                {
+                    chip8->V[X] = chip8->delay_timer;
+                    break;
+                }
+                case 0x0A: // Wait for a key press...
+                {
+                    uint16_t original_keyboard_state = 0;
+                    uint16_t keyboard_state = 0;
+
+                    for (int i = 0; i < 16; i++)
+                    {
+                        if (keyboard[i])
+                        {
+                            original_keyboard_state |= (1 << i);
+                        }
+                    }
+
+                    while (keyboard_state <= original_keyboard_state)
+                    {
+                        for (int i = 0; i < 16; i++)
+                        {
+                            if (keyboard[i])
+                            {
+                                keyboard_state |= (1 << i);
+                            }
+                        }
+
+                        if (original_keyboard_state > keyboard_state)
+                        {
+                            original_keyboard_state = keyboard_state;
+                        }
+                        usleep(10);
+                    }
+
+                    uint16_t diff = original_keyboard_state ^ keyboard_state;
+
+                    int index;
+                    for (index = 15; (diff & 0x01) != 1; index--)
+                    {
+                        diff = diff >> 1;
+                    }
+
+                    chip8->V[X] = index;
+                    break;
+                }
+                case 0x15: // Set delay timer = Vx
+                {
+                    chip8->delay_timer = chip8->V[X];
+                    break;
+                }
+                case 0x18: // Set sound timer = Vx
+                {
+                    chip8->sound_timer = chip8->V[X];
+                    break;
+                }
+                case 0x1E: // Set I = I + Vx
+                {
+                    chip8->I += chip8->V[X];
+                    break;
+                }
+                case 0x29: // Set I = Vx
+                {
+                    chip8->I = chip8->V[X];
+                    break;
+                }
+                case 0x33:
+                {
+                    // TODO
+                    break;
+                }
+                case 0x55: // Store registers V0 through Vx in memory starting at location I
+                {
+                    for (int i = 0; i < X; i++)
+                    {
+                        chip8->ram[chip8->I + i] = chip8->V[i];
+                    }
+                    break;
+                }
+                case 0x65: // Read registers V0 through Vx from memory starting at location I
+                {
+                    for (int i = 0; i < X; i++)
+                    {
+                        chip8->V[i] = chip8->ram[chip8->I + i];
+                    }
+                    break;
+                }
+            }
+            chip8->pc += 2;
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
 }
+
+// Fréquence du son à jouer (en Hz)
+const int frequency = 440;
+
+// Durée du son (en millisecondes)
+const int duration = 1000;
 
 void chip8_loop(chip8* chip8, bool *quit, bool *keyboard)
 {
     struct timeval start_time, end_time;
     long int elapsed_ms;
+
+    SDL_Init(SDL_INIT_AUDIO);
+    SDL_AudioSpec spec;
+    SDL_AudioDeviceID device;
+
+    SDL_zero(spec);
+    spec.freq = 44100;
+    spec.format = AUDIO_S16SYS;
+    spec.channels = 1;
+    spec.samples = 2048;
+    spec.callback = NULL;
+    int length = duration * spec.freq / 1000;
+
+    device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+    if (device == 0)
+    {
+        fprintf(stderr, "Cannot open audio: %s\n", SDL_GetError());
+        return;
+    }
+
+    SDL_PauseAudioDevice(device, 0);
 
     while (!(*quit))
     {
@@ -334,14 +464,18 @@ void chip8_loop(chip8* chip8, bool *quit, bool *keyboard)
 
         chip8_opcode_handler(chip8, opcode, keyboard);
 
-        if (chip8->timer_register != 0)
+        if (chip8->delay_timer != 0)
         {
-            chip8->timer_register--;
+            chip8->delay_timer--;
         }
 
-        if (chip8->delay_register != 0)
+        if (chip8->sound_timer != 0)
         {
-            chip8->delay_register--;
+            chip8->sound_timer--;
+            for (int i = 0; i < length; i++) {
+                Sint16 sample = (Sint16)(32760.0 * sin(2 * M_PI * frequency * i / spec.freq));
+                SDL_QueueAudio(device, &sample, sizeof(sample));
+            }
         }
 
         gettimeofday(&end_time, NULL);
