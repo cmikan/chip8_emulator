@@ -34,6 +34,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    chip8_loop(chip8);
+
     display_delete(display); // Join the previously created thread
     free(chip8);
 

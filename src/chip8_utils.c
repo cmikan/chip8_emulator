@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "chip8_utils.h"
 #include "constant.h"
@@ -26,7 +28,7 @@ chip8 *chip8_init()
     }
     return_value->timer_register = 0;
     return_value->delay_register = 0;
-    return_value->pc = 0;
+    return_value->pc = 0x200;
     return_value->sp = 0;
 
     return return_value;
@@ -51,4 +53,25 @@ int chip8_load_rom(chip8* chip8, const char* filename)
 
     fclose(file);
     return 0;
+}
+
+void chip8_loop(chip8* chip8)
+{
+    struct timeval start_time, end_time;
+    long int elapsed_ms;
+    bool quit = false;
+
+    while (!quit)
+    {
+        gettimeofday(&start_time, NULL);
+
+        printf("Test\n");
+
+        gettimeofday(&end_time, NULL);
+        elapsed_ms = (end_time.tv_sec - start_time.tv_sec) * 1000 + (end_time.tv_usec - start_time.tv_usec) / 1000;
+        if (elapsed_ms < REFRESH_RATE)
+        {
+            usleep((REFRESH_RATE - elapsed_ms) * 1000);
+        }
+    }
 }
