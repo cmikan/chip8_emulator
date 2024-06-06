@@ -15,13 +15,56 @@ typedef struct intern_display
 typedef struct intern_loop
 {
     SDL_Renderer* renderer;
+    bool *keyboard;
     bool *display;
     bool *quit;
 } intern_loop;
 
+int keyboard_helper(int scancode)
+{
+    switch (scancode)
+    {
+        case 30: // First row
+            return 0;
+        case 31:
+            return 1;
+        case 32:
+            return 2;
+        case 33:
+            return 3;
+        case 20: // Second row
+            return 4;
+        case 26:
+            return 5;
+        case 8:
+            return 6;
+        case 21:
+            return 7;
+        case 4: // Third row
+            return 8;
+        case 22:
+            return 9;
+        case 7:
+            return 10;
+        case 9:
+            return 11;
+        case 29: // Fourth row
+            return 12;
+        case 27:
+            return 13;
+        case 6:
+            return 14;
+        case 25:
+            return 15;
+        default:
+            return 16;
+    }
+}
+
 void *display_loop(void *arg)
 {
     intern_loop *intern = (intern_loop*)arg;
+    bool *keyboard = intern->keyboard;
     bool *quit = intern->quit;
     bool *display = intern->display;
     SDL_Renderer* renderer = intern->renderer;
@@ -30,14 +73,35 @@ void *display_loop(void *arg)
     SDL_Event event;
     while(!(*quit))
     {
-        while(SDL_PollEvent(&event)) // TODO: Add keyboard management here later
+        while(SDL_PollEvent(&event))
         {
             switch (event.type)
             {
                 case SDL_QUIT:
                 {
                     (*quit) = true;
+                    break;
                 }
+                case SDL_KEYDOWN:
+                {
+                    int key_index = keyboard_helper(event.key.keysym.scancode);
+                    if (key_index != 16)
+                    {
+                        keyboard[key_index] = true;
+                    }
+                    break;
+                }
+                case SDL_KEYUP:
+                {
+                    int key_index = keyboard_helper(event.key.keysym.scancode);
+                    if (key_index != 16)
+                    {
+                        keyboard[key_index] = false;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
         }
 
@@ -64,7 +128,7 @@ void *display_loop(void *arg)
     return (void*) 0;
 }
 
-void *display_init(bool display[], bool* quit)
+void *display_init(bool display[], bool* quit, bool *keyboard)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -89,6 +153,7 @@ void *display_init(bool display[], bool* quit)
     }
 
     intern_loop *args = (intern_loop*)malloc(sizeof(intern_loop));
+    args->keyboard = keyboard;
     args->display = display;
     args->quit = quit;
     args->renderer = return_value->renderer;
