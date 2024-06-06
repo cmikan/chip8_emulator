@@ -279,7 +279,7 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    chip8->display[((chip8->V[Y] + i) % 32) * DISPLAY_WIDTH + ((chip8->V[X] + j) % 64)] ^= (chip8->ram[chip8->I + 2 * i] >> (7 - j)) & 0x01;
+                    chip8->display[((chip8->V[Y] + i) % 32) * DISPLAY_WIDTH + ((chip8->V[X] + j) % 64)] ^= (chip8->ram[chip8->I + i] >> (7 - j)) & 0x01;
                 }
             }
             chip8->pc += 2;
