@@ -19,5 +19,6 @@ typedef struct chip8
 } chip8;
 
 chip8 *chip8_init();
+void chip8_load_rom(chip8* chip8, const char* filename);
 
 #endif //CHIP8_UTILS_H_
