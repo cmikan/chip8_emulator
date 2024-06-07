@@ -198,15 +198,8 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
                 }
                 case 0x6: // SHR
                 {
-                    if ((chip8->V[X] & 1) == 1)
-                    {
-                        chip8->V[0xF] = 1;
-                    }
-                    else
-                    {
-                        chip8->V[0xF] = 0;
-                    }
-                    chip8->V[X] /= 2;
+                    chip8->V[15] = chip8->V[X] & 0x01;
+                    chip8->V[X] >>= 1;
                     break;
                 }
                 case 0x7: // SUBN
@@ -394,7 +387,7 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
                 }
                 case 0x33:
                 {
-                    // TODO
+                    
                     break;
                 }
                 case 0x55: // Store registers V0 through Vx in memory starting at location I
@@ -482,7 +475,7 @@ void chip8_loop(chip8* chip8, bool *quit, bool *keyboard)
         elapsed_ms = (end_time.tv_sec - start_time.tv_sec) * 1000 + (end_time.tv_usec - start_time.tv_usec) / 1000;
         if (elapsed_ms < REFRESH_RATE)
         {
-            usleep((REFRESH_RATE - elapsed_ms) * 1000);
+            usleep((REFRESH_RATE - elapsed_ms) * 10);
         }
     }
 }
