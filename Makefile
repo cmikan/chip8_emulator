@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -Wall
+CFLAGS = -Wall -o2
 EXE = emulator
 
 SRCDIR = src
