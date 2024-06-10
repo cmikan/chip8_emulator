@@ -387,7 +387,7 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
                 }
                 case 0x33:
                 {
-                    
+                    // TODO
                     break;
                 }
                 case 0x55: // Store registers V0 through Vx in memory starting at location I
@@ -475,7 +475,7 @@ void chip8_loop(chip8* chip8, bool *quit, bool *keyboard)
         elapsed_ms = (end_time.tv_sec - start_time.tv_sec) * 1000 + (end_time.tv_usec - start_time.tv_usec) / 1000;
         if (elapsed_ms < REFRESH_RATE)
         {
-            usleep((REFRESH_RATE - elapsed_ms) * 10);
+            usleep((REFRESH_RATE - elapsed_ms) * 10); // TO FIX
         }
     }
 }

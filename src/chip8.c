@@ -43,7 +43,6 @@ int main(int argc, char **argv)
     return 0;
 }
 
-
 /**
  * Check if the file extension is a ch8.
  * @param filename: A pointer to the filename to check
