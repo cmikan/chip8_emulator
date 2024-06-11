@@ -387,7 +387,10 @@ void chip8_opcode_handler(chip8* chip8, uint16_t opcode, bool *keyboard)
                 }
                 case 0x33:
                 {
-                    // TODO
+                    uint8_t val = chip8->V[X];
+                    chip8->ram[chip8->I] = val / 100;
+                    chip8->ram[(chip8->I) + 1] = (val / 10) % 10;
+                    chip8->ram[(chip8->I) + 2] = val % 10;
                     break;
                 }
                 case 0x55: // Store registers V0 through Vx in memory starting at location I
